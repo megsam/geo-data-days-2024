@@ -1,0 +1,41 @@
+services:
+  postgis:
+    image: kartoza/postgis:latest
+    restart: always
+    container_name: postgis
+    environment:
+      POSTGRES_USER: gis
+      POSTGRES_PASSWORD: Jesepa@1234
+      POSTGRES_DB: gis
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+
+  geoserver:
+      image: kartoza/geoserver
+      restart: always
+      container_name: geoserver
+      environment:
+        - GEOSERVER_ADMIN_USER=admintest
+        - GEOSERVER_ADMIN_PASSWORD=geoservertest
+      ports: 
+        - "8080:8080"
+      depends_on: 
+        - postgis   
+      volumes:
+       - geoserver_data:/opt/geoserver/data_dir
+
+volumes:
+  postgis_data:
+    driver: local
+    driver_opts:
+        o: bind
+        type: none
+        device: ./postgis_data
+  geoserver_data:
+    driver: local
+    driver_opts:
+        o: bind
+        type: none
+        device: ./geoserver_data     
