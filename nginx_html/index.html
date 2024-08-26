@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenLayers avec GeoServer</title>
+    <title>OpenLayers with GeoServer</title>
     <link rel="stylesheet" href="https://openlayers.org/en/v6.5.0/css/ol.css">
     <script src="https://openlayers.org/en/v6.5.0/build/ol.js"></script>
     <style>
@@ -30,22 +30,48 @@
             })
         });
 
-        // Ajouter une couche WMS depuis GeoServer
+        // Configuration de la source WMS de GeoServer
         const wmsSource = new ol.source.TileWMS({
-            url: 'http://localhost:8080/geoserver/espace/wms?service=WMS&version=1.1.0&request=GetMap&layers=espace%3ARoutes&bbox=129346.3203125%2C6103972.5%2C1236301.5%2C7112240.5&width=768&height=699&srs=EPSG%3A2154&styles=&format=application/openlayers', // Remplacez par l'URL de votre GeoServerhttp://localhost:8080/geoserver/espace/wms?service=WMS&version=1.1.0&request=GetMap&layers=espace%3AGeodatabase_Transport%20%E2%80%94%20Bretelle_Grandes_Routes&bbox=129346.3203125%2C6103972.5%2C1236301.5%2C7112240.5&width=768&height=699&srs=EPSG%3A2154&styles=&format=application/openlayers
+            url: 'http://localhost:8080/geoserver/wms',
             params: {
-                'LAYERS': 'espace:Routes', // Remplacez par votre espace de travail et votre couche
+                'LAYERS': 'your_workspace:your_layer',
                 'TILED': true
             },
-            serverType: 'geoserver',
-            crossOrigin: 'anonymous'
+            serverType: 'geoserver'
         });
 
+        // Ajouter la couche WMS à la carte
         const wmsLayer = new ol.layer.Tile({
             source: wmsSource
         });
-
         map.addLayer(wmsLayer);
+
+        // Configuration de la source de dessin
+        const drawSource = new ol.source.Vector();
+
+        // Configuration de la couche de dessin
+        const drawLayer = new ol.layer.Vector({
+            source: drawSource,
+            style: new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                    color: 'blue',
+                    width: 2
+                })
+            })
+        });
+        map.addLayer(drawLayer);
+
+        // Configuration de l'interaction de dessin
+        const draw = new ol.interaction.Draw({
+            source: drawSource,
+            type: 'LineString'
+        });
+        map.addInteraction(draw);
+
+        // Ajouter un écouteur d'événements pour capturer les dessins terminés
+        draw.on('drawend', function(event) {
+            console.log('Dessin terminé:', event.feature.getGeometry().getCoordinates());
+        });
     </script>
 </body>
 </html>
