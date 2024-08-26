@@ -1,11 +1,18 @@
 # Script-SIG-POC
+1) Récupérer le code source et exécuter le fichier "create_folder.bat"
 
-Réaliser cette commande pour créer les images et conteneurs de Postgis et Geoserver
+2) Exécuter la commande suivante pour créer les images et conteneurs de Postgis et Geoserver
 
 docker compose -f docker-compose-postgis-geoserver.yml up -d
 
-Après avoir préparer les données dans Postgis avec Qgis et préparer la couche dans Geoserver 
+3) Après avoir préparer les données dans Postgis avec Qgis et préparer la couche dans Geoserver aller sur le localhost de nginx 
 
+
+
+
+
+
+-------------- A supprimer + tard
 Créer un dossier serveurNode et dedans lancer la commande de création d'un serveur node avec http-server
 
 npm i http-server
