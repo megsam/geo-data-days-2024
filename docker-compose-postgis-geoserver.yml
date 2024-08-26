@@ -37,8 +37,8 @@ services:
       - NGINX_HOST=foobar.com
       - NGINX_PORT=80
     volumes:
-      - nginx_html:/usr/share/nginx/html
-      - nginx_conf:/etc/nginx     
+      - ./nginx_html/index.html:/usr/share/nginx/html/index.html
+      - ./nginx_cors/cors.conf:/etc/nginx/cors.conf
         
 
 volumes:
@@ -59,10 +59,4 @@ volumes:
     driver_opts:
         o: bind
         type: none
-        device: ./nginx_html      
-  nginx_conf:
-    driver: local
-    driver_opts:
-        o: bind
-        type: none
-        device: ./nginx_conf               
+        device: ./nginx_html                    
