@@ -24,8 +24,8 @@ services:
       depends_on: 
         - postgis   
       volumes:
-       - geoserver_data:/usr/local/tomcat/webapps/geoserver/WEB-INF
-       #- ./geoserver_xml/web.xml:/usr/local/tomcat/webapps/geoserver/WEB-INF/web.xml
+       #- geoserver_data:/usr/local/tomcat/webapps/geoserver/WEB-INF
+       - ./geoserver_xml/web.xml:/usr/local/tomcat/webapps/geoserver/WEB-INF/web.xml
        
   nginx-geo:
     image: nginx:latest
