@@ -112,11 +112,11 @@
             formData.append('request', wfsRequest);
 
             // Envoyer la requête WFS à GeoServer
-            fetch('http://localhost:8080/geoserver/wfs', {
+            fetch('http://localhost:8081/geoserver/wfs', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
+                    'Content-Type': 'application/xml'
                 },
                 body: formData
             })
