@@ -86,46 +86,41 @@
             const coordinates = event.feature.getGeometry().getCoordinates();
             console.log('Dessin terminé:', coordinates);
 
-            // Créer une requête WFS pour récupérer des données de GeoServer
-            const wfsRequest = `
-                <wfs:GetFeature service="WFS" version="1.1.0"
+            // Créer une requête WFS-T pour insérer une nouvelle fonctionnalité
+            const wfsTransaction = `
+                <wfs:Transaction service="WFS" version="1.1.0"
                     xmlns:wfs="http://www.opengis.net/wfs"
                     xmlns:gml="http://www.opengis.net/gml"
-                    xmlns:espace="http://espace">
-                    <wfs:Query typeName="espace:bretelles">
-                        <wfs:PropertyName>geom</wfs:PropertyName>
-                        <ogc:Filter>
-                            <ogc:BBOX>
-                                <ogc:PropertyName>geom</ogc:PropertyName>
-                                <gml:Envelope>
-                                    <gml:lowerCorner>${coordinates[0] - 0.01} ${coordinates[1] - 0.01}</gml:lowerCorner>
-                                    <gml:upperCorner>${coordinates[0] + 0.01} ${coordinates[1] + 0.01}</gml:upperCorner>
-                                </gml:Envelope>
-                            </ogc:BBOX>
-                        </ogc:Filter>
-                    </wfs:Query>
-                </wfs:GetFeature>
+                    xmlns:espace="http://espace"
+                    xmlns:ogc="http://www.opengis.net/ogc">
+                    <wfs:Insert>
+                        <espace:bretelles>
+                            <espace:geom>
+                                <gml:Point srsName="EPSG:2154">
+                                    <gml:pos>${coordinates[0]} ${coordinates[1]}</gml:pos>
+                                </gml:Point>
+                            </espace:geom>
+                        </espace:bretelles>
+                    </wfs:Insert>
+                </wfs:Transaction>
             `;
 
-            // Créer un FormData pour envoyer la requête WFS
-            const formData = new FormData();
-            formData.append('request', wfsRequest);
-
-            // Envoyer la requête WFS à GeoServer
+            // Envoyer la requête WFS-T à GeoServer
             fetch('http://localhost:8081/geoserver/wfs', {
                 method: 'POST',
                 headers: {
-                    'Accept': 'application/json',
                     'Content-Type': 'application/xml'
                 },
-                body: formData
+                body: wfsTransaction
             })
-            .then(response => response.json())
+            .then(response => response.text())
             .then(data => {
-                console.log('Données WFS reçues:', data);
+                console.log('Réponse WFS-T:', data);
+                // Rafraîchir la couche WMS pour voir les nouvelles fonctionnalités
+                wmsSource.updateParams({'time': Date.now()});
             })
             .catch(error => {
-                console.error('Erreur lors de la requête WFS:', error);
+                console.error('Erreur lors de la requête WFS-T:', error);
             });
         });
     </script>
