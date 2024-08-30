@@ -25,6 +25,7 @@
         }
         #insertButton {
             right: 130px;
+			margin-right: 8.3rem;
         }
         #deleteButton.active {
             background-color: #dc3545;
@@ -32,16 +33,53 @@
         .ol-overlaycontainer-stopevent {
             cursor: crosshair;
         }
+        /* Style for the burger menu */
+        .burger-menu {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            margin-top: 5rem;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .layer-menu {
+            position: absolute;
+            top: 60px;
+            right: 10px;
+            z-index: 1000;
+            background-color: white;
+            border: 1px solid #ccc;
+            display: none;
+            padding: 10px;
+        }
+        .layer-menu button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            display: block;
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
     <div id="map"></div>
-    <button id="insertButton">Insert Point</button>
-    <button id="deleteButton">Delete Points</button>
+    <button id="insertButton">Insert</button>
+    <button id="deleteButton">Suppression de 5 Points a la volee</button>
+    <button class="burger-menu" id="burgerMenu">Couches</button>
+    <div class="layer-menu" id="layerMenu">
+        <button id="layer1">Points Bretelles d'autoroutes</button>
+        <button id="layer2">Polygones Communes Pays de la Loire</button>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.6.2/proj4.js"></script>
     <script src="https://openlayers.org/en/v6.5.0/build/ol.js"></script>
     <script>
-        // DÃ©finir la projection EPSG:2154
+        // Définir la projection EPSG:2154
         proj4.defs('EPSG:2154', '+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs');
         ol.proj.proj4.register(proj4);
 
@@ -68,14 +106,14 @@
         var wmsSource = new ol.source.TileWMS({
             url: 'http://localhost:8080/geoserver/wms',
             params: {
-                'LAYERS': 'espace:bretelles',
+                'LAYERS': 'espace:Bretelles',
                 'TILED': true
             },
             serverType: 'geoserver',
             crossOrigin: 'anonymous'
         });
 
-        // Ajouter la couche WMS Ã  la carte
+        // Ajouter la couche WMS à la carte
         var wmsLayer = new ol.layer.Tile({
             source: wmsSource
         });
@@ -104,16 +142,16 @@
             type: 'Point'
         });
 
-        // DÃ©sactiver l'interaction de dessin par dÃ©faut
+        // Désactiver l'interaction de dessin par défaut
         draw.setActive(false);
         map.addInteraction(draw);
 
-        // Ajouter un Ã©couteur d'Ã©vÃ©nements pour capturer les dessins terminÃ©s
+        // Ajouter un écouteur d'événements pour capturer les dessins terminés
         draw.on('drawend', function(event) {
             const coordinates = event.feature.getGeometry().getCoordinates();
-            console.log('Dessin terminÃ©:', coordinates);
+            console.log('Dessin terminé:', coordinates);
 
-            // CrÃ©er une requÃªte WFS-T pour insÃ©rer une nouvelle fonctionnalitÃ©
+            // Créer une requête WFS-T pour insérer une nouvelle fonctionnalité
             const wfsTransaction = `
                 <wfs:Transaction service="WFS" version="1.1.0"
                     xmlns:wfs="http://www.opengis.net/wfs"
@@ -121,18 +159,18 @@
                     xmlns:espace="http://espace"
                     xmlns:ogc="http://www.opengis.net/ogc">
                     <wfs:Insert>
-                        <espace:bretelles>
+                        <espace:Bretelles>
                             <espace:geom>
                                 <gml:Point srsName="EPSG:2154">
                                     <gml:pos>${coordinates[0]} ${coordinates[1]}</gml:pos>
                                 </gml:Point>
                             </espace:geom>
-                        </espace:bretelles>
+                        </espace:Bretelles>
                     </wfs:Insert>
                 </wfs:Transaction>
             `;
 
-            // Envoyer la requÃªte WFS-T Ã  GeoServer
+            // Envoyer la requête WFS-T à GeoServer
             fetch('http://localhost:8081/geoserver/wfs', {
                 method: 'POST',
                 headers: {
@@ -142,30 +180,30 @@
             })
             .then(response => response.text())
             .then(data => {
-                console.log('RÃ©ponse WFS-T:', data);
-                // RafraÃ®chir la couche WMS pour voir les nouvelles fonctionnalitÃ©s
+                console.log('Réponse WFS-T:', data);
+                // Rafraîchir la couche WMS pour voir les nouvelles fonctionnalités
                 wmsSource.updateParams({'time': Date.now()});
 
                 // Supprimer le point bleu de la carte
                 drawSource.clear();
 
-                // Recharger la carte aprÃ¨s l'insertion
+                // Recharger la carte après l'insertion
                 setTimeout(() => {
                     wmsSource.refresh();
                 }, 1000);
             })
             .catch(error => {
-                console.error('Erreur lors de la requÃªte WFS-T:', error);
+                console.error('Erreur lors de la requête WFS-T:', error);
             });
 
-            // DÃ©sactiver l'interaction de dessin aprÃ¨s l'insertion
+            // Désactiver l'interaction de dessin après l'insertion
             draw.setActive(false);
         });
 
-        // Configuration de la source vectorielle pour la sÃ©lection
+        // Configuration de la source vectorielle pour la sélection
         const selectSource = new ol.source.Vector();
 
-        // Configuration de la couche vectorielle pour la sÃ©lection
+        // Configuration de la couche vectorielle pour la sélection
         const selectLayer = new ol.layer.Vector({
             source: selectSource,
             style: new ol.style.Style({
@@ -183,33 +221,33 @@
         });
         map.addLayer(selectLayer);
 
-        // Configuration de l'interaction de sÃ©lection
+        // Configuration de l'interaction de sélection
         const select = new ol.interaction.Select({
             layers: [selectLayer],
             hitTolerance: 50000 // 50 km
         });
         map.addInteraction(select);
 
-        // DÃ©sactiver l'interaction de sÃ©lection par dÃ©faut
+        // Désactiver l'interaction de sélection par défaut
         select.setActive(false);
 
-        // Ajouter un Ã©couteur d'Ã©vÃ©nements pour capturer les sÃ©lections
+        // Ajouter un écouteur d'événements pour capturer les sélections
         select.on('select', function(event) {
-            console.log('SÃ©lection:', event);
+            console.log('Sélection:', event);
             const selectedFeatures = event.selected;
             if (selectedFeatures.length > 0) {
                 const feature = selectedFeatures[0];
                 const coordinates = feature.getGeometry().getCoordinates();
-                console.log('Point sÃ©lectionnÃ©:', coordinates);
+                console.log('Point sélectionné:', coordinates);
 
-                // CrÃ©er une requÃªte WFS-T pour supprimer la fonctionnalitÃ©
+                // Créer une requête WFS-T pour supprimer la fonctionnalité
                 const wfsTransaction = `
                     <wfs:Transaction service="WFS" version="1.1.0"
                         xmlns:wfs="http://www.opengis.net/wfs"
                         xmlns:gml="http://www.opengis.net/gml"
                         xmlns:espace="http://espace"
                         xmlns:ogc="http://www.opengis.net/ogc">
-                        <wfs:Delete typeName="espace:bretelles">
+                        <wfs:Delete typeName="espace:Bretelles">
                             <ogc:Filter>
                                 <ogc:Intersects>
                                     <ogc:PropertyName>geom</ogc:PropertyName>
@@ -222,7 +260,7 @@
                     </wfs:Transaction>
                 `;
 
-                // Envoyer la requÃªte WFS-T Ã  GeoServer
+                // Envoyer la requête WFS-T à GeoServer
                 fetch('http://localhost:8081/geoserver/wfs', {
                     method: 'POST',
                     headers: {
@@ -232,28 +270,28 @@
                 })
                 .then(response => response.text())
                 .then(data => {
-                    console.log('RÃ©ponse WFS-T:', data);
-                    // RafraÃ®chir la couche WMS pour voir les nouvelles fonctionnalitÃ©s
+                    console.log('Réponse WFS-T:', data);
+                    // Rafraîchir la couche WMS pour voir les nouvelles fonctionnalités
                     wmsSource.refresh();
                 })
                 .catch(error => {
-                    console.error('Erreur lors de la requÃªte WFS-T:', error);
+                    console.error('Erreur lors de la requête WFS-T:', error);
                 });
 
-                // DÃ©sactiver l'interaction de sÃ©lection aprÃ¨s la suppression
+                // Désactiver l'interaction de sélection après la suppression
                 select.setActive(false);
                 document.getElementById('deleteButton').classList.remove('active');
                 map.getViewport().style.cursor = '';
             }
         });
 
-        // Ajouter un Ã©couteur d'Ã©vÃ©nements pour le bouton d'insertion
+        // Ajouter un écouteur d'événements pour le bouton d'insertion
         document.getElementById('insertButton').addEventListener('click', function() {
             // Activer l'interaction de dessin
             draw.setActive(true);
         });
 
-        // Fonction pour gÃ©nÃ©rer des coordonnÃ©es alÃ©atoires dans les limites de la carte
+        // Fonction pour générer des coordonnées aléatoires dans les limites de la carte
         function generateRandomCoordinates(extent) {
             const [minX, minY, maxX, maxY] = extent;
             const randomX = minX + Math.random() * (maxX - minX);
@@ -261,7 +299,7 @@
             return [randomX, randomY];
         }
 
-        // Fonction pour gÃ©nÃ©rer les coordonnÃ©es des points Ã  supprimer
+        // Fonction pour générer les coordonnées des points à supprimer
         function generatePointsToDelete(features, numPoints) {
             const points = [];
             const featureIndices = Array.from({ length: features.length }, (_, i) => i);
@@ -275,7 +313,7 @@
             return points;
         }
 
-        // Fonction pour crÃ©er une animation colorÃ©e autour des points
+        // Fonction pour créer une animation colorée autour des points
         function animatePoints(points) {
             const animationLayer = new ol.layer.Vector({
                 source: new ol.source.Vector(),
@@ -309,16 +347,16 @@
                 animationLayer.changed();
             }, 500);
 
-            // ArrÃªter l'animation aprÃ¨s 5 secondes
+            // Arrêter l'animation après 5 secondes
             setTimeout(() => {
                 clearInterval(interval);
                 map.removeLayer(animationLayer);
             }, 5000);
         }
 
-        // Ajouter un Ã©couteur d'Ã©vÃ©nements pour le bouton de suppression
+        // Ajouter un écouteur d'événements pour le bouton de suppression
         document.getElementById('deleteButton').addEventListener('click', function() {
-            const wfsUrl = 'http://localhost:8081/geoserver/wfs?service=WFS&version=1.1.0&request=GetFeature&typeName=espace:bretelles&outputFormat=application/json';
+            const wfsUrl = 'http://localhost:8081/geoserver/wfs?service=WFS&version=1.1.0&request=GetFeature&typeName=espace:Bretelles&outputFormat=application/json';
 
             fetch(wfsUrl)
             .then(response => response.json())
@@ -327,13 +365,13 @@
                 selectSource.clear();
                 selectSource.addFeatures(features);
 
-                const numPoints = 5; // Nombre de points Ã  supprimer
+                const numPoints = 5; // Nombre de points à supprimer
                 const pointsToDelete = generatePointsToDelete(features, numPoints);
 
                 // Animer les points avant de les supprimer
                 animatePoints(pointsToDelete);
 
-                // Supprimer les points aprÃ¨s l'animation
+                // Supprimer les points après l'animation
                 setTimeout(() => {
                     pointsToDelete.forEach(coordinates => {
                         const wfsTransaction = `
@@ -342,7 +380,7 @@
                                 xmlns:gml="http://www.opengis.net/gml"
                                 xmlns:espace="http://espace"
                                 xmlns:ogc="http://www.opengis.net/ogc">
-                                <wfs:Delete typeName="espace:bretelles">
+                                <wfs:Delete typeName="espace:Bretelles">
                                     <ogc:Filter>
                                         <ogc:Intersects>
                                             <ogc:PropertyName>geom</ogc:PropertyName>
@@ -355,7 +393,7 @@
                             </wfs:Transaction>
                         `;
 
-                        // Envoyer la requÃªte WFS-T Ã  GeoServer
+                        // Envoyer la requête WFS-T à GeoServer
                         fetch('http://localhost:8081/geoserver/wfs', {
                             method: 'POST',
                             headers: {
@@ -365,24 +403,52 @@
                         })
                         .then(response => response.text())
                         .then(data => {
-                            console.log('RÃ©ponse WFS-T:', data);
-                            // RafraÃ®chir la couche WMS pour voir les nouvelles fonctionnalitÃ©s
+                            console.log('Réponse WFS-T:', data);
+                            // Rafraîchir la couche WMS pour voir les nouvelles fonctionnalités
                             wmsSource.refresh();
                         })
                         .catch(error => {
-                            console.error('Erreur lors de la requÃªte WFS-T:', error);
+                            console.error('Erreur lors de la requête WFS-T:', error);
                         });
                     });
 
-                    // Actualiser la carte aprÃ¨s la suppression de tous les points
+                    // Actualiser la carte après la suppression de tous les points
                     setTimeout(() => {
                         wmsSource.refresh();
                     }, 1000);
                 }, 5000);
             })
             .catch(error => {
-                console.error('Erreur lors de la requÃªte WFS:', error);
+                console.error('Erreur lors de la requête WFS:', error);
             });
+        });
+
+        // Ajouter un écouteur d'événements pour le bouton du menu burger
+        document.getElementById('burgerMenu').addEventListener('click', function() {
+            const layerMenu = document.getElementById('layerMenu');
+            if (layerMenu.style.display === 'none' || layerMenu.style.display === '') {
+                layerMenu.style.display = 'block';
+            } else {
+                layerMenu.style.display = 'none';
+            }
+        });
+
+        // Ajouter un écouteur d'événements pour le bouton de la couche 1
+        document.getElementById('layer1').addEventListener('click', function() {
+            // Changer la couche WMS
+            wmsSource.updateParams({
+                'LAYERS': 'espace:Bretelles'
+            });
+            wmsSource.refresh();
+        });
+
+        // Ajouter un écouteur d'événements pour le bouton de la couche 2
+        document.getElementById('layer2').addEventListener('click', function() {
+            // Changer la couche WMS
+            wmsSource.updateParams({
+                'LAYERS': 'espace:Communes'
+            });
+            wmsSource.refresh();
         });
     </script>
 </body>
