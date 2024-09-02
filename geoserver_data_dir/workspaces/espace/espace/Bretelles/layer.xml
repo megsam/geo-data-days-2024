@@ -1,0 +1,17 @@
+<layer>
+  <name>Bretelles</name>
+  <id>LayerInfoImpl--6afe57c7:191b1f26995:-7fe2</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl--6afe57c7:191b1f26995:-8000</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl--6afe57c7:191b1f26995:-7fe3</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2024-09-02 09:48:30.739 UTC</dateCreated>
+  <dateModified>2024-09-02 09:52:03.312 UTC</dateModified>
+</layer>

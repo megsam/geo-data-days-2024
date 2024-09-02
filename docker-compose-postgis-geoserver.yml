@@ -11,6 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - postgis_data:/var/lib/postgresql/data
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
 
   geoserver:
       image: kartoza/geoserver
@@ -26,6 +27,8 @@ services:
       volumes:
        #- geoserver_data:/usr/local/tomcat/webapps/geoserver/WEB-INF
        - ./geoserver_xml/web.xml:/usr/local/tomcat/webapps/geoserver/WEB-INF/web.xml
+       - ./geoserver_data_dir:/opt/geoserver/data_dir 
+
        
   nginx-geo:
     image: nginx:latest
