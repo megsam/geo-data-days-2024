@@ -1,0 +1,16 @@
+<layer>
+  <name>Communes</name>
+  <id>LayerInfoImpl--6afe57c7:191b1f26995:-7fe4</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl--6afe57c7:191b1f26995:-7ffe</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl--6afe57c7:191b1f26995:-7fe5</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2024-09-02 09:48:10.325 UTC</dateCreated>
+</layer>
