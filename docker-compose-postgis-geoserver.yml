@@ -11,6 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ./Ressources:/Ressources  # Monter le répertoire Ressources dans le conteneur
 
   geoserver:
       image: kartoza/geoserver
