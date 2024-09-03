@@ -41,7 +41,7 @@ jobs:
         run: |
           echo "Waiting for PostGIS to be ready..."
           for i in {1..30}; do
-            if docker compose -f docker-compose-postgis-geoserver.yml exec -T postgis pg_isready -U ${{ secrets.POSTGRES_USER }}; then
+            if docker compose -f docker-compose-postgis-geoserver.yml exec -T postgis pg_isready -U ${POSTGRES_USER}; then
               echo "PostGIS is ready!"
               break
             else
@@ -62,16 +62,12 @@ jobs:
     #           sleep 10
     #         fi
     #       done
-      - name: Print environment variables
-        run: |
-            echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}"
-            echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}"
         
       - name: Check database schema and tables
         env:
-          PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          PGPASSWORD: ${POSTGRES_PASSWORD}
         run: |
-          docker compose -f docker-compose-postgis-geoserver.yml exec -T postgis psql -U ${{ secrets.POSTGRES_USER }} -d ${{ secrets.POSTGRES_DB }} -f /Ressources-sql/check_db.sql
+          docker compose -f docker-compose-postgis-geoserver.yml exec -T postgis psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} -f /Ressources-sql/check_db.sql
 
       - name: Run curl test
         run: |
