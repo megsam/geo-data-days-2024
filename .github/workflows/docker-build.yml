@@ -31,8 +31,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Pull existing Docker images
-        run: docker compose -f docker-compose-postgis-geoserver.yml pull
+      - name: Build Docker Images
+        run: |
+          docker build -t megsam/geo-data-days-2024:geodatadays2024-postgis -f Dockerfile.postgis .
+          docker build -t megsam/geo-data-days-2024:geodatadays2024-geoserver -f Dockerfile.geoserver .
 
       - name: Build and Start Docker Compose Services
         run: docker compose -f docker-compose-postgis-geoserver.yml up -d --build
@@ -71,4 +73,6 @@ jobs:
         run: docker compose -f docker-compose-postgis-geoserver.yml down
 
       - name: Push Docker Images to Docker Hub
-        run: docker compose -f docker-compose-postgis-geoserver.yml push
+        run: |
+          docker push megsam/geo-data-days-2024:geodatadays2024-postgis
+          docker push megsam/geo-data-days-2024:geodatadays2024-geoserver
