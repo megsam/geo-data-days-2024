@@ -15,7 +15,7 @@ docker pull megsam/geo-data-days-2024:geodatadays2024-postgis
 ## Running the Docker Containers
 To run the containers using Docker Compose, execute the following command:
 ```sh
-docker compose -f docker-compose-postgis-geoserver-nginx.yml up -d
+docker compose -f docker-compose-postgis-geoserver.yml up -d
 ```
 This command starts the services in detached mode (`-d`).
 ## Accessing the Services
