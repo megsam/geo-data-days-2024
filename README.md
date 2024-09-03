@@ -20,7 +20,7 @@ docker compose -f docker-compose-postgis-geoserver.yml up -d
 This command starts the services in detached mode (`-d`).
 ## Accessing the Services
 - **Nginx**: Access the web application by navigating to [http://localhost:8081](http://localhost:8081) in your web browser.
-- **GeoServer**: Access the GeoServer web interface at ([http://localhost:8080/geoserver](http://localhost:8080/geoserver/web/)).
+- **GeoServer**: Access the GeoServer web interface at ([http://localhost:8080/geoserver/web/](http://localhost:8080/geoserver/web/)).
 - **PostGIS**: Connect to the PostGIS database at `localhost:5432` using your preferred PostgreSQL client with the credentials you provided.
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
