@@ -17,6 +17,8 @@ jobs:
       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
       GEOSERVER_ADMIN_USER: ${{ secrets.GEOSERVER_ADMIN_USER }}
       GEOSERVER_ADMIN_PASSWORD: ${{ secrets.GEOSERVER_ADMIN_PASSWORD }}
+      NGINX_HOST: foobar.com
+      NGINX_PORT: 80
 
     steps:
       - name: Checkout code
@@ -35,6 +37,7 @@ jobs:
         run: |
           docker build -t megsam/geo-data-days-2024:geodatadays2024-postgis -f Dockerfile.postgis .
           docker build -t megsam/geo-data-days-2024:geodatadays2024-geoserver -f Dockerfile.geoserver .
+          docker build -t megsam/geo-data-days-2024:geodatadays2024-nginx -f Dockerfile.nginx .
 
       - name: Build and Start Docker Compose Services
         run: docker compose -f docker-compose-postgis-geoserver.yml up -d --build
@@ -65,7 +68,17 @@ jobs:
             fi
           done
 
-      - name: Run curl test
+      - name: Validate Nginx Application
+        run: |
+          echo "Checking if Nginx is serving the application..."
+          if curl -s --head --request GET http://localhost:8081/ | grep "200 OK"; then
+            echo "Nginx application is serving content!"
+          else
+            echo "Nginx application is not serving content!"
+            exit 1
+          fi
+
+      - name: Run curl test for GeoServer
         run: |
           curl -f 'http://localhost:8080/geoserver/espace/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=espace%3ABretelles&maxFeatures=50&outputFormat=application%2Fjson'
 
@@ -76,3 +89,4 @@ jobs:
         run: |
           docker push megsam/geo-data-days-2024:geodatadays2024-postgis
           docker push megsam/geo-data-days-2024:geodatadays2024-geoserver
+          docker push megsam/geo-data-days-2024:geodatadays2024-nginx
