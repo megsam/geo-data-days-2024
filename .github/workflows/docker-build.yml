@@ -30,32 +30,43 @@ jobs:
 
       - name: Build and Start Docker Compose Services
         run: |
-          docker compose -f docker-compose-postgis-geoserver.yml build --no-cache
-          docker compose -f docker-compose-postgis-geoserver.yml up -d
+          docker compose -f docker-compose-postgis-geoserver.yml up -d --build
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          GEOSERVER_ADMIN_USER: ${{ secrets.GEOSERVER_ADMIN_USER }}
+          GEOSERVER_ADMIN_PASSWORD: ${{ secrets.GEOSERVER_ADMIN_PASSWORD }}
 
       - name: Wait for services to be ready
         run: |
+          echo "Waiting for PostGIS to be ready..."
           for i in {1..30}; do
-            if docker compose -f docker-compose-postgis-geoserver.yml ps | grep 'Up'; then
-              echo "Services are up and running!"
+            if docker compose -f docker-compose-postgis-geoserver.yml exec -T postgis pg_isready -U gis; then
+              echo "PostGIS is ready!"
               break
             else
-              echo "Waiting for services to be ready..."
+              echo "Waiting for PostGIS..."
               sleep 10
             fi
           done
-          
+
+          echo "Waiting for GeoServer to be ready..."
+          for i in {1..30}; do
+            if curl -s --head --request GET http://localhost:8080/geoserver/web/?page=login | grep "200 OK"; then
+              echo "GeoServer is ready!"
+              break
+            else
+              echo "Waiting for GeoServer..."
+              sleep 10
+            fi
+          done
+
       - name: Check database schema and tables
         run: |
-          docker compose -f docker-compose-postgis-geoserver.yml exec -T postgis psql -U gis -d gis -f /Ressources/check_db.sql
-
-      - name: Wait for GeoServer to be fully initialized
-        run: |
-          for i in {1..30}; do
-            curl -s --head --request GET http://localhost:8080/geoserver/web/?page=login | grep "200 OK" && break
-            echo "Waiting for GeoServer to be fully initialized..."
-            sleep 10
-          done
+          docker compose -f docker-compose-postgis-geoserver.yml exec -T postgis psql -U gis -d gis -f /Ressources-sql/check_db.sql
+        env:
+          PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
 
       - name: Run curl test
         run: |

@@ -1,0 +1,6 @@
+# Dockerfile.geoserver
+FROM kartoza/geoserver
+
+# Copie des fichiers de configuration personnalisés dans le conteneur
+COPY geoserver_xml/web.xml /usr/local/tomcat/webapps/geoserver/WEB-INF/web.xml
+COPY geoserver_data_dir /opt/geoserver/data_dir

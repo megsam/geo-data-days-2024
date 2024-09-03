@@ -1,0 +1,17 @@
+# Dockerfile.postgis
+FROM kartoza/postgis:latest
+
+# Copie du fichier pg_hba.conf dans le conteneur
+COPY docker-entrypoint-initdb.d/pg_hba.conf /docker-entrypoint-initdb.d/pg_hba.conf
+
+# Copie du dump SQL dans le conteneur
+COPY docker-entrypoint-initdb.d/dump.sql /docker-entrypoint-initdb.d/dump.sql
+
+# Copie du script d'initialisation dans le conteneur
+COPY docker-entrypoint-initdb.d/init.sh /docker-entrypoint-initdb.d/init.sh
+
+# Assurer que le script d'initialisation est exécutable
+RUN chmod +x /docker-entrypoint-initdb.d/init.sh
+
+# Expose le port utilisé par PostgreSQL
+EXPOSE 5432
