@@ -50,19 +50,23 @@ jobs:
             fi
           done
 
-      - name: Wait for GeoServer to be ready
+    #   - name: Wait for GeoServer to be ready
+    #     run: |
+    #       echo "Waiting for GeoServer to be ready..."
+    #       for i in {1..30}; do
+    #         if curl -s --head --request GET http://localhost:8080/geoserver/web/?page=login | grep "200 OK"; then
+    #           echo "GeoServer is ready!"
+    #           break
+    #         else
+    #           echo "Waiting for GeoServer..."
+    #           sleep 10
+    #         fi
+    #       done
+      - name: Print environment variables
         run: |
-          echo "Waiting for GeoServer to be ready..."
-          for i in {1..30}; do
-            if curl -s --head --request GET http://localhost:8080/geoserver/web/?page=login | grep "200 OK"; then
-              echo "GeoServer is ready!"
-              break
-            else
-              echo "Waiting for GeoServer..."
-              sleep 10
-            fi
-          done
-
+            echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}"
+            echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}"
+        
       - name: Check database schema and tables
         env:
           PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
