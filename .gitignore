@@ -1,1 +1,4 @@
 docker-entrypoint-initdb.d/.entry_point.lock
+geoserver_data_dir/gwc/diskquota_page_store_hsql/diskquota.lck
+geoserver_data_dir/gwc/diskquota_page_store_hsql/diskquota.log
+geoserver_data_dir/logs/geoserver.log
