@@ -50,24 +50,18 @@ jobs:
             fi
           done
 
-    #   - name: Wait for GeoServer to be ready
-    #     run: |
-    #       echo "Waiting for GeoServer to be ready..."
-    #       for i in {1..30}; do
-    #         if curl -s --head --request GET http://localhost:8080/geoserver/web/?page=login | grep "200 OK"; then
-    #           echo "GeoServer is ready!"
-    #           break
-    #         else
-    #           echo "Waiting for GeoServer..."
-    #           sleep 10
-    #         fi
-    #       done
-        
-      - name: Check database schema and tables
-        env:
-          PGPASSWORD: ${POSTGRES_PASSWORD}
+      - name: Wait for GeoServer to be ready
         run: |
-          docker compose -f docker-compose-postgis-geoserver.yml exec -T postgis psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} -f /Ressources-sql/check_db.sql
+          echo "Waiting for GeoServer to be ready..."
+          for i in {1..30}; do
+            if curl -s --head --request GET http://localhost:8080/geoserver/web/?page=login | grep "200 OK"; then
+              echo "GeoServer is ready!"
+              break
+            else
+              echo "Waiting for GeoServer..."
+              sleep 5
+            fi
+          done
 
       - name: Run curl test
         run: |
